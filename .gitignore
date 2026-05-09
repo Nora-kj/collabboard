@@ -1,3 +1,6 @@
+# Local secrets temp file
+.env.local.values.txt
+
 # Dependencies
 node_modules/
 .pnpm-store/
