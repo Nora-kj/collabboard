@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Test
+coverage/
+playwright-report/
+test-results/
+
+# Supabase local
+supabase/.branches
+supabase/.temp
+
+# Claude Code (user-specific only; .claude/settings.json is shared and tracked)
+.claude/settings.local.json
