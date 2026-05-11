@@ -16,17 +16,20 @@ export default function SignInPage() {
     e.preventDefault();
     setBusy(true);
     setStatus(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      const { error: signUpErr } = await supabase.auth.signUp({ email, password });
-      if (signUpErr) {
-        setStatus(signUpErr.message);
-        setBusy(false);
-        return;
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        const { error: signUpErr } = await supabase.auth.signUp({ email, password });
+        if (signUpErr) {
+          setStatus(signUpErr.message);
+          return;
+        }
       }
+      router.push("/");
+      router.refresh();
+    } finally {
+      setBusy(false);
     }
-    router.push("/");
-    router.refresh();
   };
 
   const handleMagic = async (e: React.FormEvent) => {
