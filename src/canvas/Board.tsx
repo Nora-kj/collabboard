@@ -2,8 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
+import type * as Y from "yjs";
 import { type Camera, zoomAround } from "./camera";
 import { useYDoc, useObjects, useZOrder } from "@/store/yjs-bindings";
+import { StickyNode } from "./nodes/StickyNode";
+import { RectNode } from "./nodes/RectNode";
 
 const INITIAL_CAMERA: Camera = { x: 0, y: 0, scale: 1 };
 
@@ -14,6 +17,7 @@ export function Board() {
   const [size, setSize] = useState({ width: 800, height: 600 });
   const [camera, setCamera] = useState<Camera>(INITIAL_CAMERA);
   const [isPanning, setIsPanning] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const panStart = useRef<{ camX: number; camY: number; ptrX: number; ptrY: number } | null>(null);
 
   useEffect(() => {
@@ -77,7 +81,10 @@ export function Board() {
         scaleX={camera.scale}
         scaleY={camera.scale}
         onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
+        onMouseDown={(e) => {
+          if (e.target === e.target.getStage()) setSelectedId(null);
+          handleMouseDown(e);
+        }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
@@ -85,9 +92,13 @@ export function Board() {
           <Rect x={-1} y={-1} width={2} height={2} fill="#888" />
         </Layer>
         <Layer>
-          {orderedIds.map((id) => (
-            <Rect key={`pl-${id}`} x={0} y={0} width={0} height={0} />
-          ))}
+          {orderedIds.map((id) => {
+            const obj = bundle?.doc.getMap<Y.Map<unknown>>("objects").get(id);
+            const type = obj?.get("type");
+            if (type === "sticky") return <StickyNode key={id} id={id} selected={selectedId === id} onSelect={setSelectedId} />;
+            if (type === "rect") return <RectNode key={id} id={id} selected={selectedId === id} onSelect={setSelectedId} />;
+            return null;
+          })}
         </Layer>
       </Stage>
     </div>
