@@ -1,12 +1,14 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { ensureAnonymousSession } from "@/auth/anon";
+import { RoomProvider } from "@/store/liveblocks";
+import { generateAnonymousName } from "@/auth/names";
+import { pickRandomCursorColor } from "@/lib/colors";
 
-type Props = {
-  boardId: string;
-  title: string;
-  requiresAnonSignIn: boolean;
-};
+const Board = dynamic(() => import("@/canvas/Board").then((m) => m.Board), { ssr: false });
+
+type Props = { boardId: string; title: string; requiresAnonSignIn: boolean };
 
 export function BoardClient({ boardId, title, requiresAnonSignIn }: Props) {
   useEffect(() => {
@@ -15,19 +17,26 @@ export function BoardClient({ boardId, title, requiresAnonSignIn }: Props) {
     }
   }, [requiresAnonSignIn]);
 
+  const initialPresence = useMemo(
+    () => ({ cursor: null, selection: [], name: generateAnonymousName(), color: pickRandomCursorColor() }),
+    [],
+  );
+
   if (requiresAnonSignIn) {
     return <main className="p-8 text-sm text-neutral-500">Joining as guest…</main>;
   }
 
   return (
-    <main className="flex h-screen flex-col">
-      <header className="border-b px-4 py-2 text-sm">
-        Board: <span className="font-medium">{title}</span>
-        <span className="ml-2 text-neutral-400">({boardId.slice(0, 8)})</span>
-      </header>
-      <div className="flex-1 bg-neutral-50 p-8 text-center text-neutral-400">
-        Canvas mounts here in Task 14.
-      </div>
-    </main>
+    <RoomProvider id={boardId} initialPresence={initialPresence}>
+      <main className="flex h-screen flex-col">
+        <header className="border-b px-4 py-2 text-sm">
+          <span className="font-medium">{title}</span>
+          <span className="ml-2 text-neutral-400">({boardId.slice(0, 8)})</span>
+        </header>
+        <div className="flex-1">
+          <Board />
+        </div>
+      </main>
+    </RoomProvider>
   );
 }
