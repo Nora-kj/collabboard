@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@liveblocks/client": "^2.24.4",
+    "@liveblocks/node": "^3.19.0",
     "@liveblocks/react": "^2.24.4",
     "@liveblocks/yjs": "^2.24.4",
     "@supabase/ssr": "^0.5.2",
