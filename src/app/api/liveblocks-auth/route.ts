@@ -3,9 +3,11 @@ import { Liveblocks } from "@liveblocks/node";
 import { createSupabaseServerClient } from "@/auth/supabase-server";
 import { pickRandomCursorColor } from "@/lib/colors";
 
-const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY! });
-
 export async function POST(request: Request) {
+  const secret = process.env.LIVEBLOCKS_SECRET_KEY;
+  if (!secret) return new NextResponse("Server misconfigured", { status: 500 });
+  const liveblocks = new Liveblocks({ secret });
+
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new NextResponse("Unauthorized", { status: 401 });
