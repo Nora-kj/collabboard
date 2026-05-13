@@ -11,7 +11,7 @@ import { StickyNode } from "./nodes/StickyNode";
 import { RectNode } from "./nodes/RectNode";
 import { Toolbar } from "./Toolbar";
 import type { ToolId } from "./tools/select-tool";
-import { createSticky, createRect } from "@/store/mutations";
+import { createSticky, createRect, deleteObject } from "@/store/mutations";
 import { STICKY_COLORS } from "@/lib/colors";
 
 const INITIAL_CAMERA: Camera = { x: 0, y: 0, scale: 1 };
@@ -40,6 +40,20 @@ export function Board() {
     const world = screenToWorld(pointer, camera);
     updatePresence({ cursor: world });
   };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "TEXTAREA" || target.tagName === "INPUT" || target.isContentEditable)) return;
+      if (!selectedId || !bundle) return;
+      e.preventDefault();
+      deleteObject(bundle.doc, selectedId);
+      setSelectedId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedId, bundle]);
 
   useEffect(() => {
     const el = containerRef.current;
