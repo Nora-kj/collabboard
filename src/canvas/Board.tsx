@@ -10,8 +10,9 @@ import { CursorsLayer } from "./cursors/CursorsLayer";
 import { StickyNode } from "./nodes/StickyNode";
 import { RectNode } from "./nodes/RectNode";
 import { Toolbar } from "./Toolbar";
+import { ColorPopover } from "./ColorPopover";
 import type { ToolId } from "./tools/select-tool";
-import { createSticky, createRect, deleteObject } from "@/store/mutations";
+import { createSticky, createRect, deleteObject, changeColor } from "@/store/mutations";
 import { STICKY_COLORS } from "@/lib/colors";
 
 const INITIAL_CAMERA: Camera = { x: 0, y: 0, scale: 1 };
@@ -109,6 +110,9 @@ export function Board() {
   return (
     <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-neutral-100">
       <Toolbar value={tool} onChange={setTool} />
+      {selectedId && bundle && bundle.doc.getMap<Y.Map<unknown>>("objects").get(selectedId)?.get("type") === "sticky" && (
+        <ColorPopover onPick={(c) => changeColor(bundle.doc, selectedId, c)} />
+      )}
       <Stage
         ref={stageRef}
         width={size.width}
