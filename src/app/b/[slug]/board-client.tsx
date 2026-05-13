@@ -5,6 +5,7 @@ import { ensureAnonymousSession } from "@/auth/anon";
 import { RoomProvider } from "@/store/liveblocks";
 import { generateAnonymousName } from "@/auth/names";
 import { pickRandomCursorColor } from "@/lib/colors";
+import { PresenceBar } from "@/canvas/presence/PresenceBar";
 
 const Board = dynamic(() => import("@/canvas/Board").then((m) => m.Board), { ssr: false });
 
@@ -29,9 +30,12 @@ export function BoardClient({ boardId, title, requiresAnonSignIn }: Props) {
   return (
     <RoomProvider id={boardId} initialPresence={initialPresence}>
       <main className="flex h-screen flex-col">
-        <header className="border-b px-4 py-2 text-sm">
-          <span className="font-medium">{title}</span>
-          <span className="ml-2 text-neutral-400">({boardId.slice(0, 8)})</span>
+        <header className="flex items-center justify-between border-b px-4 py-2 text-sm">
+          <div>
+            <span className="font-medium">{title}</span>
+            <span className="ml-2 text-neutral-400">({boardId.slice(0, 8)})</span>
+          </div>
+          <PresenceBar />
         </header>
         <div className="flex-1">
           <Board />
