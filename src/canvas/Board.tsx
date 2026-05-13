@@ -3,10 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
 import type * as Y from "yjs";
-import { type Camera, zoomAround } from "./camera";
+import { type Camera, zoomAround, screenToWorld } from "./camera";
 import { useYDoc, useObjects, useZOrder } from "@/store/yjs-bindings";
+import { useSelf } from "@/store/liveblocks";
 import { StickyNode } from "./nodes/StickyNode";
 import { RectNode } from "./nodes/RectNode";
+import { Toolbar } from "./Toolbar";
+import type { ToolId } from "./tools/select-tool";
+import { createSticky, createRect } from "@/store/mutations";
+import { STICKY_COLORS } from "@/lib/colors";
 
 const INITIAL_CAMERA: Camera = { x: 0, y: 0, scale: 1 };
 
@@ -18,6 +23,8 @@ export function Board() {
   const [camera, setCamera] = useState<Camera>(INITIAL_CAMERA);
   const [isPanning, setIsPanning] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [tool, setTool] = useState<ToolId>("select");
+  const self = useSelf();
   const panStart = useRef<{ camX: number; camY: number; ptrX: number; ptrY: number } | null>(null);
 
   useEffect(() => {
@@ -71,7 +78,8 @@ export function Board() {
   const orderedIds = zOrder.length === objectIds.length ? zOrder : objectIds;
 
   return (
-    <div ref={containerRef} className="h-full w-full overflow-hidden bg-neutral-100">
+    <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-neutral-100">
+      <Toolbar value={tool} onChange={setTool} />
       <Stage
         ref={stageRef}
         width={size.width}
@@ -87,6 +95,29 @@ export function Board() {
         }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onClick={(e) => {
+          if (tool === "select") return;
+          if (!bundle || !self) return;
+          const stage = e.target.getStage();
+          const pointer = stage?.getPointerPosition();
+          if (!pointer) return;
+          const world = screenToWorld(pointer, camera);
+          if (tool === "sticky") {
+            createSticky(bundle.doc, {
+              x: world.x - 90, y: world.y - 90,
+              color: STICKY_COLORS[0]!, text: "",
+              createdBy: self.id,
+            });
+          } else if (tool === "rect") {
+            createRect(bundle.doc, {
+              x: world.x - 60, y: world.y - 40,
+              width: 120, height: 80,
+              color: "#3b82f6",
+              createdBy: self.id,
+            });
+          }
+          setTool("select");
+        }}
       >
         <Layer listening={false}>
           <Rect x={-1} y={-1} width={2} height={2} fill="#888" />
