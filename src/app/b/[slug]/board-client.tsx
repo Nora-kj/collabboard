@@ -6,6 +6,7 @@ import { RoomProvider } from "@/store/liveblocks";
 import { generateAnonymousName } from "@/auth/names";
 import { pickRandomCursorColor } from "@/lib/colors";
 import { PresenceBar } from "@/canvas/presence/PresenceBar";
+import { ConnectionPill } from "@/canvas/ConnectionPill";
 
 const Board = dynamic(() => import("@/canvas/Board").then((m) => m.Board), { ssr: false });
 
@@ -35,7 +36,10 @@ export function BoardClient({ boardId, title, requiresAnonSignIn }: Props) {
             <span className="font-medium">{title}</span>
             <span className="ml-2 text-neutral-400">({boardId.slice(0, 8)})</span>
           </div>
-          <PresenceBar />
+          <div className="flex items-center gap-3">
+            <ConnectionPill />
+            <PresenceBar />
+          </div>
         </header>
         <div className="flex-1">
           <Board />
