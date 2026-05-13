@@ -5,7 +5,8 @@ import type Konva from "konva";
 import type * as Y from "yjs";
 import { type Camera, zoomAround, screenToWorld } from "./camera";
 import { useYDoc, useObjects, useZOrder } from "@/store/yjs-bindings";
-import { useSelf } from "@/store/liveblocks";
+import { useSelf, useUpdateMyPresence } from "@/store/liveblocks";
+import { CursorsLayer } from "./cursors/CursorsLayer";
 import { StickyNode } from "./nodes/StickyNode";
 import { RectNode } from "./nodes/RectNode";
 import { Toolbar } from "./Toolbar";
@@ -25,7 +26,20 @@ export function Board() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tool, setTool] = useState<ToolId>("select");
   const self = useSelf();
+  const updatePresence = useUpdateMyPresence();
+  const lastPresenceTs = useRef(0);
   const panStart = useRef<{ camX: number; camY: number; ptrX: number; ptrY: number } | null>(null);
+
+  const publishCursor = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    const now = performance.now();
+    if (now - lastPresenceTs.current < 32) return;
+    lastPresenceTs.current = now;
+    const stage = e.target.getStage();
+    const pointer = stage?.getPointerPosition();
+    if (!pointer) return;
+    const world = screenToWorld(pointer, camera);
+    updatePresence({ cursor: world });
+  };
 
   useEffect(() => {
     const el = containerRef.current;
@@ -62,6 +76,7 @@ export function Board() {
   };
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    publishCursor(e);
     if (!isPanning || !panStart.current) return;
     const dx = e.evt.clientX - panStart.current.ptrX;
     const dy = e.evt.clientY - panStart.current.ptrY;
@@ -95,6 +110,7 @@ export function Board() {
         }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onMouseLeave={() => updatePresence({ cursor: null })}
         onClick={(e) => {
           if (tool === "select") return;
           if (!bundle || !self) return;
@@ -131,6 +147,7 @@ export function Board() {
             return null;
           })}
         </Layer>
+        <CursorsLayer camera={camera} />
       </Stage>
     </div>
   );
