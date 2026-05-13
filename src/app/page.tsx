@@ -21,12 +21,14 @@ export default async function HomePage() {
           <button className="rounded border px-3 py-1 text-sm">Sign out</button>
         </form>
       </header>
-      <Link
-        href="/api/boards/new"
-        className="mb-6 inline-block rounded bg-black px-4 py-2 text-sm font-medium text-white"
-      >
-        + New board
-      </Link>
+      <form action="/api/boards/new" method="post" className="mb-6">
+        <button
+          type="submit"
+          className="rounded bg-black px-4 py-2 text-sm font-medium text-white"
+        >
+          + New board
+        </button>
+      </form>
       <ul className="divide-y rounded border">
         {boards?.map((b) => (
           <li key={b.id}>
