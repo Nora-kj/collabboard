@@ -81,7 +81,9 @@ export function Board() {
   };
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (e.evt.button !== 1) return;
+    const isMiddle = e.evt.button === 1;
+    const isBackgroundLeftDrag = e.evt.button === 0 && e.target === e.target.getStage() && tool === "select";
+    if (!isMiddle && !isBackgroundLeftDrag) return;
     e.evt.preventDefault();
     setIsPanning(true);
     panStart.current = {
