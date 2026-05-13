@@ -2,7 +2,7 @@
 
 Real-time collaborative whiteboard built for Gauntlet AI G4 Week 1.
 
-**Live demo:** _(filled in after Task 25)_
+**Live demo:** https://collabboard-lilac.vercel.app
 **Spec:** [`docs/superpowers/specs/2026-05-09-collabboard-mvp-design.md`](docs/superpowers/specs/2026-05-09-collabboard-mvp-design.md)
 
 ## Architecture
