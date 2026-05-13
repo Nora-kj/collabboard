@@ -94,10 +94,11 @@ export function Board() {
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     publishCursor(e);
-    if (!isPanning || !panStart.current) return;
-    const dx = e.evt.clientX - panStart.current.ptrX;
-    const dy = e.evt.clientY - panStart.current.ptrY;
-    setCamera((cam) => ({ ...cam, x: panStart.current!.camX + dx, y: panStart.current!.camY + dy }));
+    const start = panStart.current;
+    if (!isPanning || !start) return;
+    const dx = e.evt.clientX - start.ptrX;
+    const dy = e.evt.clientY - start.ptrY;
+    setCamera((cam) => ({ ...cam, x: start.camX + dx, y: start.camY + dy }));
   };
 
   const handleMouseUp = () => {
